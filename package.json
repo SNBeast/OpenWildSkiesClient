@@ -13,8 +13,11 @@
     "author": "OpenATBP Contributors",
     "license": "MIT",
     "devDependencies": {
+        "adm-zip": "^0.5.16",
         "electron-builder": "^22.14.13",
+        "electron-download": "^1.4.1",
         "electron-prebuilt": "^0.31.2",
+        "jszip": "^3.10.1",
         "patch-package": "^6.5.1",
         "prettier": "^2.7.1"
     },
