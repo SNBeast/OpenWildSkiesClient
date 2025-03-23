@@ -59,7 +59,7 @@ exports.default = function() {
   };
 
   download({
-    version: '0.31.2',
+    version: '0.28.3',
     arch: 'x64',
     platform: 'darwin'
   }, (err, originalZipPath) => {
