@@ -24,14 +24,8 @@ if (process.platform == "darwin") {
         full_osx_version[0] == "10"
             ? Number(full_osx_version[1])
             : (Number(full_osx_version[0]) + 5); // + 5 to cause Big Sur and up to follow Catalina as they should instead of overlapping El Capitan
-    switch (osx_release) {
-        // this Electron version states support for Mountain Lion (10.8), but the app derefs a null pointer there
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-            app.commandLine.appendSwitch("ignore-certificate-errors");
-            break;
+    if (osx_release < 12) {
+        app.commandLine.appendSwitch("--ignore-certificate-errors");
     }
 }
 

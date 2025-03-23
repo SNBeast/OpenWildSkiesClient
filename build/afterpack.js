@@ -104,8 +104,7 @@ exports.default = function() {
           zip
             .remove("version")
             .remove("Electron.app/Contents/Resources/atom.icns")
-            .remove("Electron.app/Contents/Resources/default_app")
-            .folder(/Electron\.app\/Contents\/Resources\/.*\.lproj/).forEach(fileObject => zip.remove(fileObject.name));
+            .remove("Electron.app/Contents/Resources/default_app");
 
           renameSingle(zip, "Electron.app/Contents/MacOS/Electron", "Electron.app/Contents/MacOS/OpenATBPClient");
           renameSingle(zip, "LICENSE", "LICENSE.electron.txt");
