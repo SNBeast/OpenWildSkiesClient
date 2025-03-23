@@ -9,12 +9,31 @@ var shell = require("shell");
 var mainWindow = null;
 var config = null;
 var initialPageLoad = false;
-var disableHTTPS = false;
 
 var pathSeparator = process.platform == "win32" ? "\\" : "/";
 var configPath = app.getPath("userData") + pathSeparator + "config.json";
 
 app.commandLine.appendSwitch("--enable-npapi");
+
+if (process.platform == "darwin") {
+    var full_osx_version = ChildProcess.execSync("sw_vers -productVersion")
+        .toString()
+        .trim()
+        .split(".");
+    var osx_release =
+        full_osx_version[0] == "10"
+            ? Number(full_osx_version[1])
+            : (Number(full_osx_version[0]) + 5); // + 5 to cause Big Sur and up to follow Catalina as they should instead of overlapping El Capitan
+    switch (osx_release) {
+        // this Electron version states support for Mountain Lion (10.8), but the app derefs a null pointer there
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+            app.commandLine.appendSwitch("ignore-certificate-errors");
+            break;
+    }
+}
 
 function readU32BE(buffer, index) {
     return (
@@ -155,25 +174,7 @@ app.on("window-all-closed", function () {
 });
 
 app.on("ready", function () {
-    if (process.platform == "darwin") {
-        var full_osx_version = ChildProcess.execSync("sw_vers -productVersion")
-            .toString()
-            .trim()
-            .split(".");
-        var osx_release =
-            full_osx_version[0] == "10"
-                ? Number(full_osx_version[1])
-                : Number(full_osx_version[0]) + 5; // + 5 to cause Big Sur and up to follow Catalina as they should instead of overlapping El Capitan
-        switch (osx_release) {
-            // this Electron version states support for Mountain Lion (10.8), but the app derefs a null pointer there
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-                disableHTTPS = true;
-                break;
-        }
-    } else {
+    if (process.platform != "darwin") {
         // Check just in case the user forgot to extract the zip.
         zip_check = app.getPath("exe").includes(os.tmpdir());
         if (zip_check) {
@@ -218,12 +219,6 @@ app.on("ready", function () {
 function showMainWindow() {
     config = fs.readJsonSync(configPath);
 
-    if (disableHTTPS) {
-        if (config["game-url"].startsWith("https")) {
-            config["game-url"] = config["game-url"].replace("https", "http");
-        }
-    }
-
     console.log("Game URL:", config["game-url"]);
     mainWindow.loadUrl(config["game-url"]);
 
@@ -245,12 +240,6 @@ function showMainWindow() {
 
     mainWindow.webContents.on("will-navigate", function (evt, url) {
         evt.preventDefault();
-
-        if (disableHTTPS) {
-            if (url.startsWith("https")) {
-                url = url.replace("https", "http");
-            }
-        }
 
         if (!url.startsWith(config["game-url"])) {
             shell.openExternal(url);
