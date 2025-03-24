@@ -8,10 +8,9 @@ const exefile = './dist/win-ia32-unpacked/OpenATBPClient.exe'
 const macfile = './dist/OpenATBPClient-1.0.0-x64-mac.zip';
 const resources = './dist/win-ia32-unpacked/resources/';
 const license = './dist/win-ia32-unpacked/LICENSE.md';
-const unityinstaller = './build/webplayer-mini.dmg';
 const macicon = './build/icon.icns';
 const unitylicense = './build/utils/LICENSE.WEBPLAYER.md';
-const unity3xxmac = './build/UnityPlayer3.x.x-x86_64.bundle.zip';
+const unity3xxmac = './build/Unity Web Player.plugin.zip';
 
 exports.default = function() {
   // remove leftover files from default electron app
@@ -70,7 +69,7 @@ exports.default = function() {
           var unityZip = new AdmZip(unity3xxmac);
           unityZip.forEach(fileObject => {
             if (!fileObject.isDirectory) {
-              zip.file('Electron.app/Contents/Resources/Stable' + fileObject.entryName, fileObject.getData(), {createFolders: true, unixPermissions: fileObject.attr});
+              zip.file('Electron.app/Contents/Resources/plugins/' + fileObject.entryName, fileObject.getData(), {createFolders: true, unixPermissions: fileObject.attr});
             }
           });
 
@@ -82,17 +81,14 @@ exports.default = function() {
               .replace("<key>CFBundleIdentifier</key>\n\t<string>com.github.electron</string>", "<key>CFBundleIdentifier</key>\n\t<string>xyz.openatbp.client</string>")
               .replace("<key>CFBundleIconFile</key>\n\t<string>atom.icns</string>", "<key>CFBundleIconFile</key>\n\t<string>atbp-bee.icns</string>")
             )
-            .file("webplayer-mini.dmg", fs.readFileSync(unityinstaller))
             .file("LICENSE.WEBPLAYER.md", fs.readFileSync(unitylicense))
             .file("Electron.app/Contents/Resources/atbp-bee.icns", fs.readFileSync(macicon))
             .file("README.txt",
-              'Before running OpenATBPClient for the first time, the following two things should be done:\n' +
-              '\t1. Install the bundled Unity Web Player (webplayer-mini.dmg), if Unity Web Player is not already installed. (If unsure, OpenATBPClient will tell you if it is not installed.)\n' +
-              '\t2. Control-Click -> Open OpenATBPClient and open it to remove its signature warning.\n' +
-              '\t\t- If that does not work, run the following command in this directory in Terminal:\n' +
-              '\t\t\txattr -r -d com.apple.quarantine OpenATBPClient.app\n\n' +
+              'Before running OpenATBPClient for the first time, Control-Click -> Open OpenATBPClient and open it to remove its signature warning.\n' +
+              'If that does not work, run the following command in this directory in Terminal:\n' +
+              '\txattr -r -d com.apple.quarantine OpenATBPClient.app\n\n' +
 
-              'After those are completed, you may move OpenATBPClient wherever you wish (like Applications) and discard the rest of the files.\n'
+              'After that is completed, you may move OpenATBPClient wherever you wish (like Applications) and discard the rest of the files.\n'
             );
 
           fs.readdirSync(resources, {recursive: true}).forEach(filename => {

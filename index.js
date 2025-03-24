@@ -29,16 +29,6 @@ if (process.platform == "darwin") {
     }
 }
 
-function readU32BE(buffer, index) {
-    return (
-        ((buffer[index] << 24) |
-            (buffer[index + 1] << 16) |
-            (buffer[index + 2] << 8) |
-            buffer[index + 3]) >>>
-        0
-    ); // rotation by zero converts to unsigned
-}
-
 function ensureUnity(callback) {
     if (process.platform == "win32") {
         var utilsdir = process.env.npm_node_execpath
@@ -71,63 +61,7 @@ function ensureUnity(callback) {
             return callback();
         });
     } else if (process.platform == "darwin") {
-        // make sure that the base plugin is 64-bit
-        var pluginpath = "/Library/Internet Plug-Ins/Unity Web Player.plugin";
-        var playerpath =
-            pluginpath +
-            "/Contents/Frameworks/StableUnityPlayer3.x.x-x86_64.bundle";
-        var installed = false;
-        if (fs.existsSync(pluginpath + "/Contents/MacOS/Unity Web Player")) {
-            var buff = fs.readFileSync(
-                pluginpath + "/Contents/MacOS/Unity Web Player"
-            );
-            // is a 64-bit single-arch Mach-O...
-            if (readU32BE(buff, 0) == 0xfeedfacf) {
-                // for x86_64
-                installed = readU32BE(buff, 4) == 0x01000007;
-            }
-            // or is a multi-arch Mach-O...
-            else if (readU32BE(buff, 0) == 0xcafebabe) {
-                var archs = readU32BE(buff, 4);
-
-                // where one of the arches...
-                for (var i = 0; i < archs; i++) {
-                    // is x86_64
-                    if (readU32BE(buff, 20 * i + 8) == 0x01000007) {
-                        installed = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (!installed) {
-            // the base plugin can't be automatically installed on Darwin, so the user will have to do it for us
-            dialog.showErrorBox(
-                "Error!",
-                'Unity Web Player is not installed.\n\nPlease install the bundled Unity Web Player ("webplayer-mini.dmg"), then restart this app.'
-            );
-            app.quit();
-        }
-
-        if (fs.existsSync(playerpath)) {
-            // no real need to check further
-            return callback();
-        } else {
-            if (process.env.npm_node_execpath) {
-                dialog.show(
-                    "Info",
-                    'NPM run doesn\'t support auto-installing bundles. If load fails, unquarantine "build/UnityPlayer3.x.x-x86_64.bundle.zip" and extract as "' +
-                        playerpath +
-                        '".'
-                );
-            } else {
-                fs.copySync(
-                    __dirname + "/../StableUnityPlayer3.x.x-x86_64.bundle",
-                    playerpath
-                );
-            }
-        }
-
+        // We just bundle in the plugin.
         return callback();
     } else {
         // Unity Web Player doesn't support other platforms, so good luck!
@@ -168,6 +102,8 @@ app.on("window-all-closed", function () {
 });
 
 app.on("ready", function () {
+    var prefs = { 'plugins': true };
+
     if (process.platform != "darwin") {
         // Check just in case the user forgot to extract the zip.
         zip_check = app.getPath("exe").includes(os.tmpdir());
@@ -179,13 +115,16 @@ app.on("ready", function () {
             return;
         }
     }
+    else {
+        prefs['extra-plugin-dirs'] = [__dirname + "/../plugins"];
+    }
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 1090,
         height: 776,
         show: false,
-        "web-preferences": { plugins: true },
+        "web-preferences": prefs,
     });
     mainWindow.setMinimumSize(640, 480);
 
