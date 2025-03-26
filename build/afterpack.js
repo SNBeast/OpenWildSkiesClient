@@ -1,7 +1,6 @@
 const fs = require('fs');
 const download = require('electron-download');
-const JSZip = require('jszip'); // the one with easier renaming...
-const AdmZip = require('adm-zip'); // and the one with synchronous file reading
+const JSZip = require('jszip');
 
 const defaultdir = './dist/win-ia32-unpacked/resources/default_app'
 const exefile = './dist/win-ia32-unpacked/OpenWildSkiesClient.exe'
@@ -10,7 +9,6 @@ const resources = './dist/win-ia32-unpacked/resources/';
 const license = './dist/win-ia32-unpacked/LICENSE.md';
 const macicon = './build/icon.icns';
 const unitylicense = './build/utils/LICENSE.WEBPLAYER.md';
-const unity3xxmac = './build/Unity Web Player.plugin.zip';
 
 exports.default = function() {
   // remove leftover files from default electron app
@@ -66,13 +64,6 @@ exports.default = function() {
       fs.copyFileSync(originalZipPath, macfile);
       JSZip.loadAsync(fs.readFileSync(macfile)).then(function (zip) {
         zip.file('Electron.app/Contents/Info.plist').async("string").then(function (data) {
-          var unityZip = new AdmZip(unity3xxmac);
-          unityZip.forEach(fileObject => {
-            if (!fileObject.isDirectory) {
-              zip.file('Electron.app/Contents/Resources/plugins/' + fileObject.entryName, fileObject.getData(), {createFolders: true, unixPermissions: fileObject.attr});
-            }
-          });
-
           zip
             .file('Electron.app/Contents/Info.plist', data
               .replace("<key>CFBundleDisplayName</key>\n\t<string>Electron</string>", "<key>CFBundleDisplayName</key>\n\t<string>OpenWildSkiesClient</string>")

@@ -5,6 +5,7 @@ var dialog = require("dialog");
 var BrowserWindow = require("browser-window");
 var ChildProcess = require("child_process");
 var shell = require("shell");
+var path = require('path')
 
 var mainWindow = null;
 var initialPageLoad = false;
@@ -57,7 +58,7 @@ app.on("window-all-closed", function () {
 });
 
 app.on("ready", function () {
-    var prefs = { 'plugins': true };
+    var prefs = { 'plugins': true, 'extra-plugin-dirs': [path.join(__dirname, "plugins")] };
 
     if (process.platform != "darwin") {
         // Check just in case the user forgot to extract the zip.
@@ -69,9 +70,6 @@ app.on("ready", function () {
             dialog.showErrorBox("Error!", errormsg);
             return;
         }
-    }
-    else {
-        prefs['extra-plugin-dirs'] = [__dirname + "/../plugins"];
     }
 
     // Create the browser window.
