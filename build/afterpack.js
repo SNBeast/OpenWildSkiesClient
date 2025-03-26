@@ -4,8 +4,8 @@ const JSZip = require('jszip'); // the one with easier renaming...
 const AdmZip = require('adm-zip'); // and the one with synchronous file reading
 
 const defaultdir = './dist/win-ia32-unpacked/resources/default_app'
-const exefile = './dist/win-ia32-unpacked/OpenATBPClient.exe'
-const macfile = './dist/OpenATBPClient-1.0.0-x64-mac.zip';
+const exefile = './dist/win-ia32-unpacked/OpenWildSkiesClient.exe'
+const macfile = './dist/OpenWildSkiesClient-1.0.0-x64-mac.zip';
 const resources = './dist/win-ia32-unpacked/resources/';
 const license = './dist/win-ia32-unpacked/LICENSE.md';
 const macicon = './build/icon.icns';
@@ -75,20 +75,20 @@ exports.default = function() {
 
           zip
             .file('Electron.app/Contents/Info.plist', data
-              .replace("<key>CFBundleDisplayName</key>\n\t<string>Electron</string>", "<key>CFBundleDisplayName</key>\n\t<string>OpenATBPClient</string>")
-              .replace("<key>CFBundleExecutable</key>\n\t<string>Electron</string>", "<key>CFBundleExecutable</key>\n\t<string>OpenATBPClient</string>")
-              .replace("<key>CFBundleName</key>\n\t<string>Electron</string>", "<key>CFBundleName</key>\n\t<string>OpenATBPClient</string>")
-              .replace("<key>CFBundleIdentifier</key>\n\t<string>com.github.electron</string>", "<key>CFBundleIdentifier</key>\n\t<string>xyz.openatbp.client</string>")
-              .replace("<key>CFBundleIconFile</key>\n\t<string>atom.icns</string>", "<key>CFBundleIconFile</key>\n\t<string>atbp-bee.icns</string>")
+              .replace("<key>CFBundleDisplayName</key>\n\t<string>Electron</string>", "<key>CFBundleDisplayName</key>\n\t<string>OpenWildSkiesClient</string>")
+              .replace("<key>CFBundleExecutable</key>\n\t<string>Electron</string>", "<key>CFBundleExecutable</key>\n\t<string>OpenWildSkiesClient</string>")
+              .replace("<key>CFBundleName</key>\n\t<string>Electron</string>", "<key>CFBundleName</key>\n\t<string>OpenWildSkiesClient</string>")
+              .replace("<key>CFBundleIdentifier</key>\n\t<string>com.github.electron</string>", "<key>CFBundleIdentifier</key>\n\t<string>xyz.openwildskies.client</string>")
+              .replace("<key>CFBundleIconFile</key>\n\t<string>atom.icns</string>", "<key>CFBundleIconFile</key>\n\t<string>wildskies.icns</string>")
             )
             .file("LICENSE.WEBPLAYER.md", fs.readFileSync(unitylicense))
-            .file("Electron.app/Contents/Resources/atbp-bee.icns", fs.readFileSync(macicon))
+            .file("Electron.app/Contents/Resources/wildskies.icns", fs.readFileSync(macicon))
             .file("README.txt",
-              'Before running OpenATBPClient for the first time, Control-Click -> Open OpenATBPClient and open it to remove its signature warning.\n' +
+              'Before running OpenWildSkiesClient for the first time, Control-Click -> Open OpenWildSkiesClient and open it to remove its signature warning.\n' +
               'If that does not work, run the following command in this directory in Terminal:\n' +
-              '\txattr -r -d com.apple.quarantine OpenATBPClient.app\n\n' +
+              '\txattr -r -d com.apple.quarantine OpenWildSkiesClient.app\n\n' +
 
-              'After that is completed, you may move OpenATBPClient wherever you wish (like Applications) and discard the rest of the files.\n'
+              'After that is completed, you may move OpenWildSkiesClient wherever you wish (like Applications) and discard the rest of the files.\n'
             );
 
           fs.readdirSync(resources, {recursive: true}).forEach(filename => {
@@ -102,16 +102,16 @@ exports.default = function() {
             .remove("Electron.app/Contents/Resources/atom.icns")
             .remove("Electron.app/Contents/Resources/default_app");
 
-          renameSingle(zip, "Electron.app/Contents/MacOS/Electron", "Electron.app/Contents/MacOS/OpenATBPClient");
+          renameSingle(zip, "Electron.app/Contents/MacOS/Electron", "Electron.app/Contents/MacOS/OpenWildSkiesClient");
           renameSingle(zip, "LICENSE", "LICENSE.electron.txt");
-          renameFolder(zip, "Electron.app", "OpenATBPClient.app");
+          renameFolder(zip, "Electron.app", "OpenWildSkiesClient.app");
 
           zip
             .generateNodeStream({compression: 'DEFLATE', type: 'nodebuffer', streamFiles: 'true', platform: 'UNIX'})
             .pipe(fs.createWriteStream(macfile))
             .on('finish', function () {
               // now we need to pack the zip in another zip to bypass a Safari bug
-              new JSZip().file('OpenATBPClient-1.0.0-x64-mac.zip', fs.readFileSync(macfile)).file("LICENSE.md", fs.readFileSync(license))
+              new JSZip().file('OpenWildSkiesClient-1.0.0-x64-mac.zip', fs.readFileSync(macfile)).file("LICENSE.md", fs.readFileSync(license))
                 .generateNodeStream({compression: 'DEFLATE', type: 'nodebuffer', streamFiles: 'true', platform: 'UNIX'})
                 .pipe(fs.createWriteStream(macfile))
                 .on('finish', function () {

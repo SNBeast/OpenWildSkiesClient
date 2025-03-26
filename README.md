@@ -1,6 +1,9 @@
-# OpenATBPClient
+# OpenWildSkiesClient
 
-Electron app for easily playing Battle Party. Forked from [OpenFusionClient](https://github.com/OpenFusionProject/OpenFusionClient).
+Electron app for easily playing Wild Skies. Forked from an [OpenATBPClient fork](https://github.com/SNBeast/OpenATBPClient).
 
-## Download
-See the [releases page](https://github.com/OpenATBP/OpenATBPClient/releases).
+## Build
+```sh
+npm i
+npm run dist
+```
